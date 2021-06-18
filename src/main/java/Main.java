@@ -1,10 +1,18 @@
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main
 {
 
+
+
     public static void main(String[] args) {
+
+        fileOpen();
+
         boolean stay =true;
         System.out.println("Welcome to currency converter");
         ArrayList<Result> results = new ArrayList<>();
@@ -25,8 +33,11 @@ public class Main
             }
             while (!answer.equalsIgnoreCase("1") && !answer.equalsIgnoreCase("2") && !answer.equalsIgnoreCase("3"));
             int option = Integer.parseInt(answer);
+            double coinValue = GetCoinValues(option);
             CoinFactory myCoinFac = new CoinFactory();
-            Coin myCoin = myCoinFac.getCoin(Coins.values()[option-1]);
+            Coin myCoin = myCoinFac.getCoin(Coins.values()[option-1],coinValue);
+
+
 
 
             do {
@@ -58,17 +69,15 @@ public class Main
             }
 
             //open file
-            //show result
+
 
 
 
 
         }
-
+        fileWrite(results);
         System.out.println("Thanks for using our currency converter.");
-        for(Result r : results){
-            System.out.println(r);
-        }
+
 
 
     }
@@ -85,6 +94,79 @@ public static boolean isNumeric(String strNum) {
         return false;
     }
     return true;
+}
+
+
+
+
+public static double GetCoinValues(int option) {
+    try {
+        BufferedReader reader;
+        String line = null;
+        StringBuffer responseContent = new StringBuffer();
+
+        URL url = new URL("http://api.exchangeratesapi.io/v1/latest?access_key=89fc343f2e24d03fe1451b2882cf7994&symbols=USD,ILS&format=1");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
+
+        reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        while((line = reader.readLine()) != null){
+            responseContent.append(line);
+        }
+        reader.close();
+        //responseContent be like:  {  "success":true,  "timestamp":1623937744,  "base":"EUR",  "date":"2021-06-17",  "rates":{    "USD":1.193538,    "ILS":3.898227  }}
+        String response = responseContent.toString();
+        // 1.193538,    "ILS"
+        String[] respArr = response.split(":");
+        String shekels = respArr[7];// --> 3.898227  }}
+        shekels =shekels.replace("}","").strip();
+        String dollars = respArr[6];
+        dollars = dollars.replace("ILS","");
+        dollars = dollars.replace(",","");
+        dollars = dollars.replace("\"","").strip();
+        double shekelsValue = Double.parseDouble(shekels);
+        double dollarsValue = Double.parseDouble(dollars);
+        switch (option){
+            case 1,2 :
+            return shekelsValue/dollarsValue;
+            case 3:
+                return shekelsValue;
+        }
+
+
+
+    }catch (IOException e){
+        e.printStackTrace();
+        System.out.println("Could not get rate from API using default rate...");
+    }
+    return 0.0;
+}
+
+public static void fileWrite(ArrayList<Result> result){
+    try {
+        BufferedWriter bw = new BufferedWriter(
+                new FileWriter("C:\\Users\\ayham\\Desktop\\Java\\Coin_Converter\\output.txt"));
+        for(Result r : result){
+            bw.write(r+"\n");
+        }
+        bw.close();
+
+
+    }catch (Exception e){
+        e.getStackTrace();
+        System.out.println("Something went wrong.... please try again");
+
+    }
+
+
+
+}
+
+public static void fileOpen() {
+
+
 }
 
 }

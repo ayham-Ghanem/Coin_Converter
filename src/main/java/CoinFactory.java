@@ -1,18 +1,12 @@
 public class CoinFactory {
 
-    public static Coin getCoin(Coins coin){
+    public static Coin getCoin(Coins coin,double value){
 
-        switch (coin){
+        return switch (coin) {
+            case ILS -> new ILS(value);
+            case USD -> new USD(value);
+            case EUR -> new EUR(value);
+        };
 
-            case ILS:
-                return new ILS();
-            case USD:
-                return new USD();
-            case EUR:
-                return new EUR();
-
-        }
-
-        return null;
     }
 }
