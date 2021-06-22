@@ -11,7 +11,7 @@ public class Main
 
     public static void main(String[] args) {
 
-        fileOpen();
+
 
         boolean stay =true;
         System.out.println("Welcome to currency converter");
@@ -34,8 +34,7 @@ public class Main
             while (!answer.equalsIgnoreCase("1") && !answer.equalsIgnoreCase("2") && !answer.equalsIgnoreCase("3"));
             int option = Integer.parseInt(answer);
             double coinValue = GetCoinValues(option);
-            CoinFactory myCoinFac = new CoinFactory();
-            Coin myCoin = myCoinFac.getCoin(Coins.values()[option-1],coinValue);
+            Coin myCoin = CoinFactory.getCoin(Coins.values()[option-1],coinValue);
 
 
 
@@ -52,7 +51,7 @@ public class Main
             System.out.println(myCoin.Calculate(amount));
 
 
-            String answer2 = null;
+            String answer2;
             Scanner myObj1 = new Scanner(System.in);
 
 
@@ -68,18 +67,13 @@ public class Main
                 stay = false;
             }
 
-            //open file
-
-
-
-
 
         }
         fileWrite(results);
         System.out.println("Thanks for using our currency converter.");
 
 
-
+        fileOpen();
     }
 
 
@@ -89,7 +83,7 @@ public static boolean isNumeric(String strNum) {
         return false;
     }
     try {
-        double d = Double.parseDouble(strNum);
+        Double.parseDouble(strNum);
     } catch (NumberFormatException nfe) {
         return false;
     }
@@ -102,8 +96,8 @@ public static boolean isNumeric(String strNum) {
 public static double GetCoinValues(int option) {
     try {
         BufferedReader reader;
-        String line = null;
-        StringBuffer responseContent = new StringBuffer();
+        String line;
+        StringBuilder responseContent = new StringBuilder();
 
         URL url = new URL("http://api.exchangeratesapi.io/v1/latest?access_key=89fc343f2e24d03fe1451b2882cf7994&symbols=USD,ILS&format=1");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -147,7 +141,7 @@ public static double GetCoinValues(int option) {
 public static void fileWrite(ArrayList<Result> result){
     try {
         BufferedWriter bw = new BufferedWriter(
-                new FileWriter("C:\\Users\\ayham\\Desktop\\Java\\Coin_Converter\\output.txt"));
+                new FileWriter("output.txt"));
         for(Result r : result){
             bw.write(r+"\n");
         }
@@ -166,6 +160,24 @@ public static void fileWrite(ArrayList<Result> result){
 
 public static void fileOpen() {
 
+
+        try {
+            String path = "output.txt";
+            File file = new File(path);
+            if (file.exists()){
+
+                Process pro = Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler "+path);
+                pro.waitFor();
+
+            }else {
+                System.out.println("file does not exist");
+
+            }
+
+        }
+        catch (Exception e){
+            System.out.println("Something went wrong please try again");;
+        }
 
 }
 
