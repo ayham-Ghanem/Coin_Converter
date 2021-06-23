@@ -176,7 +176,7 @@ public static void fileOpen() {
 
         }
         catch (Exception e){
-            System.out.println("Something went wrong please try again");;
+            System.out.println("Something went wrong please try again");
         }
 
 }
